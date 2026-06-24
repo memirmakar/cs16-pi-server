@@ -1,6 +1,6 @@
 # CS 1.6 Server on Raspberry Pi 5
 
-A Counter-Strike 1.6 dedicated server running on Raspberry Pi 5 using Linux HLDS (steam_legacy) + ReHLDS engine + Metamod-R + AMX Mod X, running natively through Box86.
+A Counter-Strike 1.6 dedicated server running on Raspberry Pi 5 using Linux HLDS (steam_legacy) + ReHLDS engine (3.13) + Metamod-R + AMX Mod X, running natively through Box86.
 
 ## Hardware & OS
 - Raspberry Pi 5 (4GB or 8GB)
@@ -41,14 +41,13 @@ Then open Pi-Apps and install:
 ### What setup.sh does
 1. Updates the system
 2. Installs dependencies (curl, tmux, ufw, unzip)
-3. Fixes Box86 memory map (vm.mmap_min_addr=0)
-4. Downloads SteamCMD
-5. Downloads steam_legacy HLDS via SteamCMD
-6. Copies ReHLDS engine_i486.so
-7. Sets up Metamod-R
-8. Sets up AMX Mod X 1.10
-9. Copies server.cfg
-10. Configures ufw firewall
+3. Downloads SteamCMD
+4. Downloads steam_legacy HLDS via SteamCMD
+5. Copies ReHLDS engine_i486.so
+6. Sets up Metamod-R
+7. Sets up AMX Mod X 1.10
+8. Copies server.cfg
+9. Configures ufw firewall
 
 ---
 
@@ -58,8 +57,8 @@ Then open Pi-Apps and install:
 Download from https://github.com/dreamstalker/rehlds/releases/download/3.13.0.788/rehlds-bin-3.13.0.788.zip
 
     unzip rehlds-bin-3.13.0.788.zip -d rehlds
-    cp rehlds/bin/linux32/engine_i486.so ~/Steam/steamapps/common/Half-Life/
-
+    cp rehlds/bin/linux32/* ~/Steam/steamapps/common/Half-Life/ 
+    
 ### 2. Metamod-R
 Download from https://github.com/theAsmodai/metamod-r/releases/latest
 
@@ -85,16 +84,6 @@ Add to server launch or server.cfg:
 
     mp_consistency 0
 
-### 5. Copy Windows CS 1.6 Resource Files
-Run on your Windows PC:
-
-    scp -r "C:\Program Files (x86)\Steam\steamapps\common\Half-Life\cstrike\sprites" raspmemco@192.168.1.140:~/Steam/steamapps/common/Half-Life/cstrike/
-    scp -r "C:\Program Files (x86)\Steam\steamapps\common\Half-Life\cstrike\models" raspmemco@192.168.1.140:~/Steam/steamapps/common/Half-Life/cstrike/
-    scp -r "C:\Program Files (x86)\Steam\steamapps\common\Half-Life\cstrike\sound" raspmemco@192.168.1.140:~/Steam/steamapps/common/Half-Life/cstrike/
-    scp -r "C:\Program Files (x86)\Steam\steamapps\common\Half-Life\cstrike\gfx" raspmemco@192.168.1.140:~/Steam/steamapps/common/Half-Life/cstrike/
-    scp -r "C:\Program Files (x86)\Steam\steamapps\common\Half-Life\cstrike\resource" raspmemco@192.168.1.140:~/Steam/steamapps/common/Half-Life/cstrike/
-
----
 
 ## Running the Server
 
@@ -157,14 +146,6 @@ playit.gg is no longer used — server is accessible locally only unless CG-NAT 
 
 ---
 
-## Network Notes
-
-- TurkNet uses CG-NAT — external connections not possible without tunnel
-- DDNS hostname yaralisiskomc.servecounterstrike.com tracks your WAN IP via No-IP
-- Port 27015 UDP forwarded on Huawei LG8245X6-50 router
-- VNC access via WayVNC on port 5900
-
----
 
 ## Firewall Rules
 
