@@ -1,0 +1,13 @@
+[Unit]
+Description=Counter-Strike 1.6 Server
+After=network.target
+
+[Service]
+User=raspmemco
+WorkingDirectory=/home/raspmemco/Steam/steamapps/common/Half-Life
+ExecStart=/home/raspmemco/Steam/steamapps/common/Half-Life/hlds_run -game cstrike -ip 192.168.1.140 -port 27015 +maxplayers 12 +map de_dust2
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

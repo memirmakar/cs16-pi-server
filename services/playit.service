@@ -1,0 +1,12 @@
+[Unit]
+Description=Playit.gg tunnel
+After=network.target
+
+[Service]
+User=raspmemco
+ExecStart=/home/raspmemco/playit
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
