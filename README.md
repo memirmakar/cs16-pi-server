@@ -1,32 +1,34 @@
 # CS 1.6 Server on Raspberry Pi 5
 
-A Counter-Strike 1.6 dedicated server running on Raspberry Pi 5 using Windows HLDS via Wine+Box64, with Metamod-R and AMX Mod X support.
+A Counter-Strike 1.6 dedicated server running on Raspberry Pi 5 using Linux HLDS (steam_legacy) + ReHLDS engine + Metamod-R + AMX Mod X, running natively through Box86.
 
 ## Hardware & OS
 - Raspberry Pi 5 (4GB or 8GB)
 - Raspberry Pi OS 64-bit (Debian Trixie)
 
 ## Stack
-- **HLDS**: Windows version via Wine 11.4 + Box64
-- **Metamod**: Metamod-P v1.21p109
+- **HLDS**: Linux steam_legacy branch via Box86
+- **Engine**: ReHLDS 3.13 (replaces engine_i486.so)
+- **Game DLL**: ReGameDLL_CS (replaces cs.so)
+- **Metamod**: Metamod-R
 - **Plugins**: AMX Mod X 1.10
-- **Tunnel**: playit.gg (CG-NAT workaround)
 - **Firewall**: ufw
+
+## Performance
+- ~400-450 FPS server tick rate
+- ~8% CPU usage with players connected
+- Much better performance than Windows HLDS + Wine approach
 
 ---
 
 ## Pre-requisites
 
-These must be installed via Pi-Apps BEFORE running setup.sh.
-
-**Install Pi-Apps:**
+Install via Pi-Apps BEFORE running setup.sh:
 
     wget -qO- https://raw.githubusercontent.com/Botspot/pi-apps/master/install | bash
 
 Then open Pi-Apps and install:
-1. **Box86** — required for SteamCMD (32-bit x86 binary). Reboot after.
-2. **Box64** — required for Wine to run Windows binaries on ARM64.
-3. **Wine** — must be installed via Pi-Apps, NOT via apt. The apt version cannot run x86 Windows binaries.
+1. **Box86** — required to run x86 Linux binaries on ARM64. Reboot after.
 
 ---
 
@@ -39,109 +41,103 @@ Then open Pi-Apps and install:
 ### What setup.sh does
 1. Updates the system
 2. Installs dependencies (curl, tmux, ufw, unzip)
-3. Downloads SteamCMD
-4. Downloads Windows HLDS + CS 1.6 via SteamCMD
-5. Copies server.cfg
-6. Configures ufw firewall rules
-7. Downloads playit.gg binary
-8. Installs and enables playit systemd service
-9. Creates ~/start_cs.sh
+3. Fixes Box86 memory map (vm.mmap_min_addr=0)
+4. Downloads SteamCMD
+5. Downloads steam_legacy HLDS via SteamCMD
+6. Copies ReHLDS engine_i486.so
+7. Sets up Metamod-R
+8. Sets up AMX Mod X 1.10
+9. Copies server.cfg
+10. Configures ufw firewall
 
 ---
 
 ## Manual Steps
 
-### 1. Metamod-R
-Download the Windows binary from [https://github.com/rehlds/metamod-r]
+### 1. Download ReHLDS 3.13
+Download from https://github.com/dreamstalker/rehlds/releases/download/3.13.0.788/rehlds-bin-3.13.0.788.zip
 
-    unzip metamod-p-*-windows.zip -d ~/hlds_windows/cstrike/addons/metamod/
-    cp ~/hlds_windows/cstrike/addons/metamod/dlls/metamod.dll ~/hlds_windows/cstrike/dlls/
+    unzip rehlds-bin-3.13.0.788.zip -d rehlds
+    cp rehlds/bin/linux32/engine_i486.so ~/Steam/steamapps/common/Half-Life/
 
-Edit ~/hlds_windows/cstrike/liblist.gam and change the gamedll line to:
+### 2. Metamod-R
+Download from https://github.com/theAsmodai/metamod-r/releases/latest
 
-    gamedll "dlls\metamod.dll"
+    mkdir -p ~/Steam/steamapps/common/Half-Life/cstrike/addons/metamod/dlls
+    cp addons/metamod/metamod_i386.so ~/Steam/steamapps/common/Half-Life/cstrike/addons/metamod/dlls/
 
-### 2. AMX Mod X
-Download base + cstrike Windows packages from https://www.amxmodx.org/downloads-new.php. Goes to cstrike/addon
+Edit liblist.gam:
 
-    unzip amxmodx-*-base-windows.zip -d ~/hlds_windows/cstrike/
-    unzip amxmodx-*-cstrike-windows.zip -d ~/hlds_windows/cstrike/
+    sed -i 's|gamedll_linux "dlls/cs.so"|gamedll_linux "addons/metamod/dlls/metamod_i386.so"|' ~/Steam/steamapps/common/Half-Life/cstrike/liblist.gam
 
-Create ~/hlds_windows/cstrike/addons/metamod/plugins.ini with:
+Create plugins.ini:
 
-    win32 addons/amxmodx/dlls/amxmodx_mm.dll
+    linux addons/amxmodx/dlls/amxmodx_mm_i386.so
 
-### 3. Copy Windows CS 1.6 Resource Files
-The HLDS download is missing sprites, models, sounds. Copy from a Windows CS 1.6 install (run on your Windows PC): (Probably not necessary)
+### 3. AMX Mod X 1.10
+Download base + cstrike Linux packages from https://www.amxmodx.org/downloads-new.php
 
-    scp -r "C:\Program Files (x86)\Steam\steamapps\common\Half-Life\cstrike\sprites" raspmemco@<PI-IP>:~/hlds_windows/cstrike/
-    scp -r "C:\Program Files (x86)\Steam\steamapps\common\Half-Life\cstrike\models" raspmemco@<PI-IP>:~/hlds_windows/cstrike/
-    scp -r "C:\Program Files (x86)\Steam\steamapps\common\Half-Life\cstrike\sound" raspmemco@<PI-IP>:~/hlds_windows/cstrike/
-    scp -r "C:\Program Files (x86)\Steam\steamapps\common\Half-Life\cstrike\gfx" raspmemco@<PI-IP>:~/hlds_windows/cstrike/
-    scp -r "C:\Program Files (x86)\Steam\steamapps\common\Half-Life\cstrike\resource" raspmemco@<PI-IP>:~/hlds_windows/cstrike/
+    tar zxvf amxmodx-*-base-linux.tar.gz -C ~/Steam/steamapps/common/Half-Life/cstrike/
+    tar zxvf amxmodx-*-cstrike-linux.tar.gz -C ~/Steam/steamapps/common/Half-Life/cstrike/
 
-### 4. Playit.gg Tunnel
-Temp workaround.
+### 4. Fix consistency check
+Add to server launch or server.cfg:
 
-    ~/playit
+    mp_consistency 0
 
-Visit the URL it prints in your browser. Create a new tunnel:
-- Type: UDP
-- Local port: 27015
-- External port: 27015
+### 5. Copy Windows CS 1.6 Resource Files
+Run on your Windows PC:
 
-After setup:
-
-    sudo systemctl start playit
+    scp -r "C:\Program Files (x86)\Steam\steamapps\common\Half-Life\cstrike\sprites" raspmemco@192.168.1.140:~/Steam/steamapps/common/Half-Life/cstrike/
+    scp -r "C:\Program Files (x86)\Steam\steamapps\common\Half-Life\cstrike\models" raspmemco@192.168.1.140:~/Steam/steamapps/common/Half-Life/cstrike/
+    scp -r "C:\Program Files (x86)\Steam\steamapps\common\Half-Life\cstrike\sound" raspmemco@192.168.1.140:~/Steam/steamapps/common/Half-Life/cstrike/
+    scp -r "C:\Program Files (x86)\Steam\steamapps\common\Half-Life\cstrike\gfx" raspmemco@192.168.1.140:~/Steam/steamapps/common/Half-Life/cstrike/
+    scp -r "C:\Program Files (x86)\Steam\steamapps\common\Half-Life\cstrike\resource" raspmemco@192.168.1.140:~/Steam/steamapps/common/Half-Life/cstrike/
 
 ---
 
 ## Running the Server
 
-The server runs in a tmux session for live console access.
-
-**Start:**
-
     tmux new -s csserver ~/start_cs.sh
 
-**Detach** (server keeps running in background): Ctrl+B then D
-
-**Reattach:**
-
-    tmux attach -t csserver
+Detach: Ctrl+B then D
+Reattach: tmux attach -t csserver
 
 ---
 
 ## Live Console Commands
 
-Type directly in the HLDS console window:
-
-    changelevel de_inferno       # change map
-    map de_nuke                  # change map, restart round
-    maxplayers 16                # change player limit
-    sv_password mypassword       # password protect
-    exec server.cfg              # reload config
-    meta list                    # list Metamod plugins
-    amxx plugins                 # list AMX Mod X plugins
+    changelevel de_inferno
+    map de_nuke
+    maxplayers 16
+    sv_password mypassword
+    exec server.cfg
+    meta list
+    amxx plugins
 
 ---
 
 ## Adding Plugins
 
-1. Drop .amxx file into ~/hlds_windows/cstrike/addons/amxmodx/plugins/
-2. Add plugin name to ~/hlds_windows/cstrike/addons/amxmodx/configs/plugins.ini
-3. Restart the server
+1. Drop .amxx file into ~/Steam/steamapps/common/Half-Life/cstrike/addons/amxmodx/plugins/
+2. Add plugin name to ~/Steam/steamapps/common/Half-Life/cstrike/addons/amxmodx/configs/plugins.ini
+3. Restart server
 
-To sync plugins to the repo:
+---
 
-    cp -r ~/hlds_windows/cstrike/addons ~/cs16-server/
-    cd ~/cs16-server && git add . && git commit -m "Add plugin" && git push
+## Admin Setup
+
+Edit ~/Steam/steamapps/common/Half-Life/cstrike/addons/amxmodx/configs/users.ini:
+
+    "STEAM_0:0:XXXXXXX" "" "abcdefghijklmnopqrstu" "ce"
+
+Find your Steam ID at https://steamidfinder.com
 
 ---
 
 ## Updating Config
 
-Edit configs/server.cfg on any machine, push to GitHub, then on the Pi:
+Edit configs/server.cfg, push to GitHub, then on Pi:
 
     ~/cs16-server/update.sh
 
@@ -149,34 +145,31 @@ Edit configs/server.cfg on any machine, push to GitHub, then on the Pi:
 
 ## Services
 
-Only playit runs as a systemd service (auto-starts on boot):
-
-    sudo systemctl status playit
-    sudo systemctl restart playit
-    sudo systemctl stop playit
+Nothing runs as systemd — server is started manually via tmux.
+playit.gg is no longer used — server is accessible locally only unless CG-NAT is resolved.
 
 ---
 
 ## Connecting
 
-- **Local network:** connect 192.168.1.140
-- **Public via playit:** connect 147.185.221.27:31136
+- Local network: connect 192.168.1.140
+- Via DDNS: connect yaralisiskomc.servecounterstrike.com (local network only due to CG-NAT)
 
 ---
 
 ## Network Notes
 
-- With CG-NAT — port forwarding alone does not work for external connections
-- playit.gg tunnel is used as a CG-NAT workaround (Romania routing, ~250ms for distant players)
-- Port 27015 UDP is forwarded on the Huawei LG8245X6-50 router for potential future use
-- VNC access via WayVNC on port 5900 — connect with TigerVNC Viewer to 192.168.1.140:5900
+- TurkNet uses CG-NAT — external connections not possible without tunnel
+- DDNS hostname yaralisiskomc.servecounterstrike.com tracks your WAN IP via No-IP
+- Port 27015 UDP forwarded on Huawei LG8245X6-50 router
+- VNC access via WayVNC on port 5900
 
 ---
 
 ## Firewall Rules
 
     sudo ufw status
-    22/tcp    SSH (local only)
+    22/tcp    SSH
     27015/udp CS 1.6
     5900/tcp  VNC
 
@@ -184,21 +177,15 @@ Only playit runs as a systemd service (auto-starts on boot):
 
 ## Troubleshooting
 
-**Port already in use:**
+Port in use:
 
     sudo fuser -k 27015/udp
 
-**playit tunnel offline:**
+Bad surface extents error:
+Use ReHLDS 3.13, NOT 3.15. ReHLDS is only compatible with steam_legacy HLDS.
 
-    sudo systemctl restart playit
+Sprite/consistency errors:
+Add mp_consistency 0 to server launch parameters.
 
-**VNC not connecting:**
-
-    sudo systemctl status wayvnc
-    sudo ufw allow 5900/tcp
-
-**Wine crashes on player connect:**
-Usually caused by an incompatible AMX Mod X plugin. Disable plugins one by one in plugins.ini to isolate.
-
-**Server IP shows 127.0.1.1 instead of local IP:**
-Always pass -ip 192.168.1.140 explicitly in the start command.
+Server IP shows 127.0.1.1:
+Always pass -ip 192.168.1.140 explicitly.
