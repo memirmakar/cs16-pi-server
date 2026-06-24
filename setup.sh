@@ -38,10 +38,6 @@ sudo apt update && sudo apt upgrade -y
 echo "[2/8] Installing dependencies..."
 sudo apt install curl tmux ufw unzip -y
 
-# Fix memory map for Box86
-echo "[3/8] Fixing memory map for Box86..."
-sudo sysctl -w vm.mmap_min_addr=0
-echo "vm.mmap_min_addr=0" | sudo tee /etc/sysctl.d/box86.conf
 
 # SteamCMD
 echo "[4/8] Downloading SteamCMD..."
@@ -49,7 +45,7 @@ cd ~
 curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf -
 
 # Download Windows HLDS
-echo "[5/8] Downloading Windows HLDS + CS 1.6 (this will take a while)..."
+echo "[5/8] Downloading Windows HLDS + CS 1.6..."
 mkdir -p ~/hlds_windows
 box86 ~/linux32/steamcmd +@sSteamCmdForcePlatformType windows +login anonymous +force_install_dir ~/hlds_windows +app_set_config 90 mod cstrike +app_update 90 validate +quit
 
