@@ -1,6 +1,16 @@
 #!/bin/bash
+HLDS=~/Steam/steamapps/common/Half-Life/cstrike
+
 cd ~/cs16-server
 git pull
-cp configs/server.cfg ~/Steam/steamapps/common/Half-Life/cstrike/server.cfg
+
+# server.cfg
+cp configs/server.cfg $HLDS/server.cfg
+
+# addons (plugins, configs)
+if [ -d addons ]; then
+    cp -r addons/ $HLDS/
+fi
+
 sudo systemctl restart cs16
 echo "Server updated and restarted."
