@@ -1,6 +1,6 @@
 # CS 1.6 Server on Raspberry Pi 5
 
-A Counter-Strike 1.6 dedicated server running on Raspberry Pi 5 using Windows HLDS via Wine+Box64, with Metamod-P and AMX Mod X support.
+A Counter-Strike 1.6 dedicated server running on Raspberry Pi 5 using Windows HLDS via Wine+Box64, with Metamod-R and AMX Mod X support.
 
 ## Hardware & OS
 - Raspberry Pi 5 (4GB or 8GB)
@@ -39,21 +39,20 @@ Then open Pi-Apps and install:
 ### What setup.sh does
 1. Updates the system
 2. Installs dependencies (curl, tmux, ufw, unzip)
-3. Fixes Box86 memory map (vm.mmap_min_addr=0)
-4. Downloads SteamCMD
-5. Downloads Windows HLDS + CS 1.6 via SteamCMD
-6. Copies server.cfg
-7. Configures ufw firewall rules
-8. Downloads playit.gg binary
-9. Installs and enables playit systemd service
-10. Creates ~/start_cs.sh
+3. Downloads SteamCMD
+4. Downloads Windows HLDS + CS 1.6 via SteamCMD
+5. Copies server.cfg
+6. Configures ufw firewall rules
+7. Downloads playit.gg binary
+8. Installs and enables playit systemd service
+9. Creates ~/start_cs.sh
 
 ---
 
 ## Manual Steps
 
-### 1. Metamod-P
-Download the Windows binary from https://github.com/Bots-United/metamod-p/releases/latest
+### 1. Metamod-R
+Download the Windows binary from [https://github.com/rehlds/metamod-r]
 
     unzip metamod-p-*-windows.zip -d ~/hlds_windows/cstrike/addons/metamod/
     cp ~/hlds_windows/cstrike/addons/metamod/dlls/metamod.dll ~/hlds_windows/cstrike/dlls/
@@ -63,7 +62,7 @@ Edit ~/hlds_windows/cstrike/liblist.gam and change the gamedll line to:
     gamedll "dlls\metamod.dll"
 
 ### 2. AMX Mod X
-Download base + cstrike Windows packages from https://www.amxmodx.org/downloads-new.php
+Download base + cstrike Windows packages from https://www.amxmodx.org/downloads-new.php. Goes to cstrike/addon
 
     unzip amxmodx-*-base-windows.zip -d ~/hlds_windows/cstrike/
     unzip amxmodx-*-cstrike-windows.zip -d ~/hlds_windows/cstrike/
@@ -73,7 +72,7 @@ Create ~/hlds_windows/cstrike/addons/metamod/plugins.ini with:
     win32 addons/amxmodx/dlls/amxmodx_mm.dll
 
 ### 3. Copy Windows CS 1.6 Resource Files
-The HLDS download is missing sprites, models, sounds. Copy from a Windows CS 1.6 install (run on your Windows PC):
+The HLDS download is missing sprites, models, sounds. Copy from a Windows CS 1.6 install (run on your Windows PC): (Probably not necessary)
 
     scp -r "C:\Program Files (x86)\Steam\steamapps\common\Half-Life\cstrike\sprites" raspmemco@<PI-IP>:~/hlds_windows/cstrike/
     scp -r "C:\Program Files (x86)\Steam\steamapps\common\Half-Life\cstrike\models" raspmemco@<PI-IP>:~/hlds_windows/cstrike/
@@ -82,7 +81,7 @@ The HLDS download is missing sprites, models, sounds. Copy from a Windows CS 1.6
     scp -r "C:\Program Files (x86)\Steam\steamapps\common\Half-Life\cstrike\resource" raspmemco@<PI-IP>:~/hlds_windows/cstrike/
 
 ### 4. Playit.gg Tunnel
-Required for public access behind CG-NAT (common with TurkNet).
+Temp workaround.
 
     ~/playit
 
@@ -167,7 +166,7 @@ Only playit runs as a systemd service (auto-starts on boot):
 
 ## Network Notes
 
-- TurkNet uses CG-NAT — port forwarding alone does not work for external connections
+- With CG-NAT — port forwarding alone does not work for external connections
 - playit.gg tunnel is used as a CG-NAT workaround (Romania routing, ~250ms for distant players)
 - Port 27015 UDP is forwarded on the Huawei LG8245X6-50 router for potential future use
 - VNC access via WayVNC on port 5900 — connect with TigerVNC Viewer to 192.168.1.140:5900
