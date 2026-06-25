@@ -30,7 +30,8 @@ Install via Pi-Apps BEFORE running setup.sh:
     wget -qO- https://raw.githubusercontent.com/Botspot/pi-apps/master/install | bash
 
 Then open Pi-Apps and install:
-1. **Box86** — required to run x86 Linux binaries on ARM64. Make sure it adds the kernel parameter that fixes the memory issue (it will ask for a prompt). Reboot after. 
+1. **Box86** — required to run x86 Linux binaries on ARM64. Make sure it adds the kernel parameter that fixes the memory issue (it will ask for a prompt). Reboot after.
+2. **Steam** - Might be required to install this through Pi-apps though I'm not sure.
 
 ---
 
@@ -155,4 +156,4 @@ Sprite/consistency errors:
 Add mp_consistency 0 to server launch parameters.
 
 Server IP shows 127.0.1.1:
-Always pass -ip 192.168.1.140 explicitly.
+Always pass -ip 192.168.1.140 explicitly. I noticed when running the Windows version of HLDS through Wine + Box86 the IP displays correctly. On Linux though, even though the IP isn't shown as your specified IP it still works so it's fine I guess.
