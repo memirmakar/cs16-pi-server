@@ -1,12 +1,12 @@
 # CS 1.6 Server on Raspberry Pi 5
 
-A Counter-Strike 1.6 dedicated server running on Raspberry Pi 5 using Linux HLDS (steam_legacy) + ReHLDS engine (3.13) + Metamod-R + AMX Mod X, running natively through Box86.
+A Counter-Strike 1.6 dedicated server running on Raspberry Pi 5 using Linux HLDS (steam_legacy) + ReHLDS engine (3.13) + Metamod-R + AMX Mod X, running through Box86. Setup script is so that I don't have to start from scratch. 
 
 ## Hardware & OS
 - Raspberry Pi 5 (4GB or 8GB)
 - Raspberry Pi OS 64-bit (Debian Trixie)
 
-## Stack
+## Plugins etc.
 - **HLDS**: Linux steam_legacy branch via Box86
 - **Engine**: ReHLDS 3.13 (replaces engine_i486.so)
 - **Game DLL**: ReGameDLL_CS (replaces cs.so)
@@ -15,9 +15,8 @@ A Counter-Strike 1.6 dedicated server running on Raspberry Pi 5 using Linux HLDS
 - **Firewall**: ufw
 
 ## Performance
-- ~400-450 FPS server tick rate
+- ~400-450 FPS server tick rate 
 - ~8% CPU usage with players connected
-- Much better performance than Windows HLDS + Wine approach
 
 ---
 
@@ -28,7 +27,7 @@ Install via Pi-Apps BEFORE running setup.sh:
     wget -qO- https://raw.githubusercontent.com/Botspot/pi-apps/master/install | bash
 
 Then open Pi-Apps and install:
-1. **Box86** — required to run x86 Linux binaries on ARM64. Reboot after.
+1. **Box86** — required to run x86 Linux binaries on ARM64. Make sure it adds the kernel parameter that fixes the memory issue (it will ask for a prompt). Reboot after. 
 
 ---
 
@@ -69,17 +68,13 @@ Edit liblist.gam:
 
     sed -i 's|gamedll_linux "dlls/cs.so"|gamedll_linux "addons/metamod/dlls/metamod_i386.so"|' ~/Steam/steamapps/common/Half-Life/cstrike/liblist.gam
 
-Create plugins.ini:
-
-    linux addons/amxmodx/dlls/amxmodx_mm_i386.so
-
 ### 3. AMX Mod X 1.10
 Download base + cstrike Linux packages from https://www.amxmodx.org/downloads-new.php
 
     tar zxvf amxmodx-*-base-linux.tar.gz -C ~/Steam/steamapps/common/Half-Life/cstrike/
     tar zxvf amxmodx-*-cstrike-linux.tar.gz -C ~/Steam/steamapps/common/Half-Life/cstrike/
 
-### 4. Fix consistency check
+### 4. Fix consistency check (if you don't do this you will get bad sprite error when players connect from post-anniversary clients)
 Add to server launch or server.cfg:
 
     mp_consistency 0
@@ -88,9 +83,6 @@ Add to server launch or server.cfg:
 ## Running the Server
 
     tmux new -s csserver ~/start_cs.sh
-
-Detach: Ctrl+B then D
-Reattach: tmux attach -t csserver
 
 ---
 
@@ -132,19 +124,10 @@ Edit configs/server.cfg, push to GitHub, then on Pi:
 
 ---
 
-## Services
-
-Nothing runs as systemd — server is started manually via tmux.
-playit.gg is no longer used — server is accessible locally only unless CG-NAT is resolved.
-
----
 
 ## Connecting
 
 - Local network: connect 192.168.1.140
-- Via DDNS: connect yaralisiskomc.servecounterstrike.com (local network only due to CG-NAT)
-
----
 
 
 ## Firewall Rules
