@@ -13,7 +13,7 @@ A Counter-Strike 1.6 dedicated server running on Raspberry Pi 5 using Linux HLDS
 - **HLDS**: Linux steam_legacy branch via Box86
 - **Engine**: ReHLDS 3.13 (replaces engine_i486.so)
 - **Game DLL**: ReGameDLL_CS (replaces cs.so)
-- **Metamod**: Metamod-R
+- **Metamod**: Metamod-R (1.3.0.149)
 - **Plugins**: AMX Mod X 1.10
 - **Firewall**: ufw
 
