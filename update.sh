@@ -12,5 +12,4 @@ if [ -d addons ]; then
     cp -r addons/ $HLDS/
 fi
 
-sudo systemctl restart cs16
-echo "Server updated and restarted."
+echo "Server updated."
