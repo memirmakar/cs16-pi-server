@@ -1,5 +1,8 @@
 # CS 1.6 Server on Raspberry Pi 5
 
+Wanted to host a ReHLDS CS server on my Pi 5, but ran into some issues while setting it up so made a guide on how to do it again if I am forced to. 
+TLDR: USE ReHLDS 3.13, not the latest version. Use the steam_legacy version of CS (command in setup.sh). Use mp_consistency 0 in server.
+
 A Counter-Strike 1.6 dedicated server running on Raspberry Pi 5 using Linux HLDS (steam_legacy) + ReHLDS engine (3.13) + Metamod-R + AMX Mod X, running through Box86. Setup script is so that I don't have to start from scratch. 
 
 ## Hardware & OS
