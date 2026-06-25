@@ -5,6 +5,8 @@ TLDR: USE ReHLDS 3.13, not the latest version. Use the steam_legacy version of C
 
 A Counter-Strike 1.6 dedicated server running on Raspberry Pi 5 using Linux HLDS (steam_legacy) + ReHLDS engine (3.13) + Metamod-R + AMX Mod X, running through Box86. Setup script is so that I don't have to start from scratch. 
 
+## Note: You need to attach your Pi to a static IP in your modem + port forward 27015. If you're in a CG-NAT network you will also need an external VPS to route through if you want to make your server public. For LAN, port forwarding and a static ip on your Pi is enough.
+
 ## Hardware & OS
 - Raspberry Pi 5 (4GB or 8GB)
 - Raspberry Pi OS 64-bit (Debian Trixie)
