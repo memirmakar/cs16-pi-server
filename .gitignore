@@ -34,6 +34,7 @@ addons/metamod/*.log
 
 # --- Secrets / local-only ---
 *.toml          # frpc.toml may contain your relay token
-users.ini       # contains admin SteamIDs; keep a sample instead
+users.ini
+user.ini.sample      # contains admin SteamIDs; keep a sample instead
 banned.cfg
 listip.cfg
