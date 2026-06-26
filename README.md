@@ -2,14 +2,13 @@
 
 A Counter-Strike 1.6 dedicated server running on a Raspberry Pi 5: **steam_legacy HLDS + ReHLDS 3.13 + Metamod-R + AMX Mod X**, all running through **ExaGear** (x86-on-ARM64).
 
-I built this after hitting a wall of version-mismatch and emulation issues, so this repo is mostly a note to myself for rebuilding from scratch. If you're attempting the same thing, the three things that cost me the most time are up top. You don't need to use the scripts in the repo. Following the README manually is enough.
+I built this after hitting a wall of version-mismatch and emulation issues, so this repo is mostly a note to myself for rebuilding from scratch. If you're attempting the same thing, the three things that cost me the most time are up top. (Just scroll bottom to Manual Installation)
 
 ## TL;DR — the three gotchas
 
 1. **Use ReHLDS 3.13, not the latest.** Newer builds reject standard maps with a `CalcSurfaceExtents: Bad surface extents` error.
 2. **Use the `steam_legacy` branch of HLDS.** ReHLDS is only compatible with the pre-anniversary engine (`<= 8684`). The SteamCMD command in `setup.sh` already does this.
 3. **Set `mp_consistency 0`.** Without it, post-anniversary clients get kicked with a `Bad file sprites/...` error on connect.
-4. **Use Exagear, not Box86. AMX-Mod-X crashes the server on Box86.
 
 ---
 
@@ -35,11 +34,11 @@ I built this after hitting a wall of version-mismatch and emulation issues, so t
 
 ## Networking
 
-For **LAN play**: assign the Pi a static IP in your modem (this is so that your Pi IP does not change inside your LAN network) and port-forward UDP `27015`. That's all you need.
+For **LAN play**: assign the Pi a static IP in your modem and port-forward UDP `27015`. That's all you need.
 
 For a **public server**: you also need to handle reachability from the internet.
 - If you have a normal public IP, port-forwarding is enough.
-- If you're behind **CG-NAT** , port-forwarding alone won't work — route through an external machine with a public IP (e.g. an FRP relay on a friend's connection or a VPS).
+- If you're behind **CG-NAT** (common with TurkNet), port-forwarding alone won't work — route through an external machine with a public IP (e.g. an FRP relay on a friend's connection or a VPS).
 
 ---
 
@@ -127,7 +126,125 @@ mp_consistency 0
 
 ---
 
-## Running the server
+## Manual installation (from scratch, no setup.sh)
+
+The full sequence if you'd rather do it by hand, or if `setup.sh` fails. Assumes a fresh Raspberry Pi OS 64-bit (Trixie) and that **ExaGear is already installed** (https://github.com/ryanfortner/exagear-rpi). All x86 binaries below run under ExaGear.
+
+### 1. System + dependencies
+
+```
+sudo apt-get update && sudo apt-get upgrade -y
+sudo apt-get install -y curl tmux ufw unzip
+```
+
+### 2. SteamCMD
+
+```
+cd ~
+curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf -
+```
+
+### 3. HLDS (steam_legacy branch — required for ReHLDS)
+
+```
+exagear -- ~/linux32/steamcmd \
+  +login anonymous \
+  +app_set_config 90 mod cstrike \
+  +app_update 90 -beta steam_legacy validate \
+  +quit
+```
+
+Silence the harmless steamclient warning (don't bother with this):
+
+```
+mkdir -p ~/.steam/sdk32
+ln -sf ~/Steam/steamapps/common/Half-Life/steamclient.so ~/.steam/sdk32/steamclient.so
+```
+
+### 4. ReHLDS 3.13 (NOT the latest)
+
+```
+cd ~
+curl -L https://github.com/dreamstalker/rehlds/releases/download/3.13.0.788/rehlds-bin-3.13.0.788.zip -o rehlds.zip
+unzip rehlds.zip -d rehlds
+cp rehlds/bin/linux32/* ~/Steam/steamapps/common/Half-Life/
+```
+
+### 5. Metamod-R
+
+Download the latest from https://github.com/theAsmodai/metamod-r/releases, then:
+
+```
+mkdir -p ~/Steam/steamapps/common/Half-Life/cstrike/addons/metamod/dlls
+cp <metamod>/addons/metamod/metamod_i386.so \
+   ~/Steam/steamapps/common/Half-Life/cstrike/addons/metamod/dlls/
+```
+
+Point HLDS at Metamod instead of the game DLL:
+
+```
+sed -i 's|gamedll_linux "dlls/cs.so"|gamedll_linux "addons/metamod/dlls/metamod_i386.so"|' \
+  ~/Steam/steamapps/common/Half-Life/cstrike/liblist.gam
+```
+
+### 6. ReGameDLL (optional but recommended)
+
+Download the latest `regamedll-bin` from https://github.com/rehlds/ReGameDLL_CS/releases, then (basically copy over to your installation like all the other mods):
+
+```
+cp <regamedll>/bin/linux32/cstrike/dlls/cs.so   ~/Steam/steamapps/common/Half-Life/cstrike/dlls/
+cp <regamedll>/bin/linux32/cstrike/game.cfg     ~/Steam/steamapps/common/Half-Life/cstrike/
+cp <regamedll>/bin/linux32/cstrike/delta.lst    ~/Steam/steamapps/common/Half-Life/cstrike/
+```
+
+### 7. AMX Mod X 1.10
+
+Download base + cstrike Linux packages from https://www.amxmodx.org/downloads-new.php, then:
+
+```
+tar zxvf amxmodx-*-base-linux.tar.gz    -C ~/Steam/steamapps/common/Half-Life/cstrike/
+tar zxvf amxmodx-*-cstrike-linux.tar.gz -C ~/Steam/steamapps/common/Half-Life/cstrike/
+```
+
+Create the Metamod plugin list so AMX loads:
+
+```
+cat > ~/Steam/steamapps/common/Half-Life/cstrike/addons/metamod/plugins.ini << 'EOF'
+linux addons/amxmodx/dlls/amxmodx_mm_i386.so
+EOF
+```
+
+### 8. Restore your configs, plugins, and admins (very very optional)
+
+If you have this repo cloned, pull your tracked customizations on top:
+
+```
+cd ~/cs16-pi-server && git pull && ./update.sh
+```
+
+Then recreate the two files that are deliberately NOT in the repo:
+
+```
+# admins (see Admin Setup below for the format)
+nano ~/Steam/steamapps/common/Half-Life/cstrike/addons/amxmodx/configs/users.ini
+
+# FRP relay config, only if going public (serverAddr, token, proxy block)
+nano ~/cs16-pi-server/frpc.toml
+```
+
+
+### 9. Firewall
+
+```
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw allow 22/tcp
+sudo ufw allow 27015/udp
+sudo ufw allow 5900/tcp
+sudo ufw --force enable
+```
+
+### 10. Start
 
 ```
 sudo exagear
@@ -171,7 +288,7 @@ Find your Steam ID at https://steamidfinder.com.
 Edit `configs/server.cfg`, push to GitHub, then on the Pi:
 
 ```
-~/cs16-server/update.sh
+~/cs16-pi-server/update.sh
 ```
 
 ---
@@ -179,6 +296,7 @@ Edit `configs/server.cfg`, push to GitHub, then on the Pi:
 ## Connecting
 
 - **LAN:** `connect 192.168.1.140`
+- **Public:** Will depend on your setup.
 
 ## Firewall rules
 
