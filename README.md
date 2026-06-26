@@ -35,7 +35,7 @@ I built this after hitting a wall of version-mismatch and emulation issues, so t
 
 ## Networking
 
-For **LAN play**: assign the Pi a static IP in your modem and port-forward UDP `27015`. That's all you need.
+For **LAN play**: assign the Pi a static IP in your modem (this is so that your Pi IP does not change inside your LAN network) and port-forward UDP `27015`. That's all you need.
 
 For a **public server**: you also need to handle reachability from the internet.
 - If you have a normal public IP, port-forwarding is enough.
