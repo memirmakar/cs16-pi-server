@@ -1,47 +1,71 @@
 # ============================================================================
-#  Allowlist-style .gitignore
-#  Ignore everything, then re-allow scaffolding + safe file types under
-#  configs/ and addons/. users.ini and binaries are force-excluded last.
+#  CS 1.6 Pi server -- allowlist .gitignore
+#
+#  Philosophy: track only what YOU customize. Everything stock (AMX Mod X
+#  source tree, language files, gamedata, binaries, maps) is re-fetched by
+#  setup.sh and is intentionally NOT tracked.
+#
+#  Tracked:
+#    - repo scaffolding (README, scripts, .gitignore)
+#    - configs/*.cfg, *.ini, *.txt           (your server configs)
+#    - addons/amxmodx/configs/*              (your plugin list, amxx.cfg, etc.)
+#    - addons/amxmodx/plugins/*.amxx         (compiled plugins you run)
+#    - addons/metamod/plugins.ini            (which MM plugins load)
+#  Never tracked:
+#    - users.ini (admin SteamIDs), *.toml (FRP token), ban lists
+#    - binaries (.so/.dll/.dat/.mmdb), maps/sounds/models/sprites
+#    - the stock scripting/, data/lang/, data/gamedata/ trees
+#    - logs
 # ============================================================================
 
 # 1) Ignore everything at the repo root
 /*
 
-# 2) Re-allow top-level scaffolding
+# 2) Re-allow repo scaffolding
 !/.gitignore
 !/README.md
 !/setup.sh
 !/update.sh
-!/sync_to_repo.sh
+!/sync-to-repo.sh
 !/start_cs.sh
 !/configs/
 !/addons/
 
-# ----------------------------------------------------------------------------
-#  Re-allow directory traversal everywhere under configs/ and addons/.
-#  (You must un-ignore directories BEFORE you can un-ignore files inside them.)
-# ----------------------------------------------------------------------------
+# 3) configs/ -- text configs only
 !configs/**/
-!addons/**/
+!configs/**/*.cfg
+!configs/**/*.ini
+!configs/**/*.txt
+
+# 4) addons/ -- re-allow ONLY the specific subfolders we customize.
+#    (We do NOT blanket re-allow addons/**/ , so stock trees like
+#     scripting/ and data/ are never descended into.)
+!addons/amxmodx/
+!addons/amxmodx/configs/
+!addons/amxmodx/plugins/
+!addons/metamod/
+
+# 5) Re-allow the file types we care about inside those folders
+!addons/amxmodx/configs/*.ini
+!addons/amxmodx/configs/*.cfg
+!addons/amxmodx/plugins/*.amxx
+!addons/metamod/*.ini
 
 # ----------------------------------------------------------------------------
-#  Re-allow the file types we want to keep, anywhere in the tree
+#  Hard exclusions (last = wins). Belt-and-suspenders even though the folders
+#  above aren't re-allowed.
 # ----------------------------------------------------------------------------
-!**/*.cfg
-!**/*.ini
-!**/*.txt
-!**/*.amxx
-
-# ----------------------------------------------------------------------------
-#  Hard exclusions (come last, so they override the re-allows above)
-# ----------------------------------------------------------------------------
-**/users.ini
+# Stock AMX Mod X trees (re-fetched by setup.sh, never our customization)
+addons/amxmodx/scripting/
+addons/amxmodx/data/
+addons/amxmodx/modules/
+addons/amxmodx/dlls/
+addons/amxmodx/configs/users.ini
+addons/amxmodx/configs/user.ini
 **/*.so
 **/*.dll
 **/*.dat
-**/*.mdl
-**/*.spr
-**/*.wad
+**/*.mmdb
 **/logs/**
 *.log
 *.toml
