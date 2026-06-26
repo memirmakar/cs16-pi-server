@@ -1,9 +1,9 @@
 # CS 1.6 Server on Raspberry Pi 5
 
 Wanted to host a ReHLDS CS server on my Pi 5, but ran into some issues while setting it up so made a guide on how to do it again if I am forced to. 
-TLDR: USE ReHLDS 3.13, not the latest version. Use the steam_legacy version of CS (command in setup.sh). Use mp_consistency 0 in server.
+TLDR: USE ReHLDS 3.13, not the latest version. Use the steam_legacy version of CS (command in setup.sh). Use mp_consistency 0 in server. 
 
-A Counter-Strike 1.6 dedicated server running on Raspberry Pi 5 using Linux HLDS (steam_legacy) + ReHLDS engine (3.13) + Metamod-R + AMX Mod X, running through Box86. Setup script is so that I don't have to start from scratch. 
+A Counter-Strike 1.6 dedicated server running on Raspberry Pi 5 using Linux HLDS (steam_legacy) + ReHLDS engine (3.13) + Metamod-R + AMX Mod X, running through Exagear. Setup script is so that I don't have to start from scratch. 
 
 ## Note: You need to attach your Pi to a static IP in your modem + port forward 27015. If you're in a CG-NAT network you will also need an external VPS to route through if you want to make your server public. For LAN, port forwarding and a static ip on your Pi is enough.
 
@@ -12,7 +12,7 @@ A Counter-Strike 1.6 dedicated server running on Raspberry Pi 5 using Linux HLDS
 - Raspberry Pi OS 64-bit (Debian Trixie)
 
 ## Plugins etc.
-- **HLDS**: Linux steam_legacy branch via Box86
+- **HLDS**: Linux steam_legacy branch via Exagear
 - **Engine**: ReHLDS 3.13 (replaces engine_i486.so)
 - **Game DLL**: ReGameDLL_CS (replaces cs.so)
 - **Metamod**: Metamod-R (1.3.0.149)
@@ -27,13 +27,9 @@ A Counter-Strike 1.6 dedicated server running on Raspberry Pi 5 using Linux HLDS
 
 ## Pre-requisites
 
-Install via Pi-Apps BEFORE running setup.sh:
-
-    wget -qO- https://raw.githubusercontent.com/Botspot/pi-apps/master/install | bash
-
-Then open Pi-Apps and install:
-1. **Box86** — required to run x86 Linux binaries on ARM64. Make sure it adds the kernel parameter that fixes the memory issue (it will ask for a prompt). Reboot after.
-2. **Steam** - Might be required to install this through Pi-apps though I'm not sure.
+1. **Exagear** — required to run x86 Linux binaries on ARM64. Follow the instructions at https://github.com/ryanfortner/exagear-rpi
+   You will run the server from the sudo exagear prompt.
+3. **Steam** - Might be required to install this through Pi-apps though I'm not sure. 
 
 ---
 
@@ -75,7 +71,11 @@ Edit liblist.gam:
     sed -i 's|gamedll_linux "dlls/cs.so"|gamedll_linux "addons/metamod/dlls/metamod_i386.so"|' ~/Steam/steamapps/common/Half-Life/cstrike/liblist.gam
 
 ### 3. AMX Mod X 1.10
-Download base + cstrike Linux packages from https://www.amxmodx.org/downloads-new.php
+Download base + cstrike Linux packages from https://www.amxmodx.org/downloads-new.php. Also if it's missing, make sure to generate plugins.ini located in ~/Steam/steamapps/common/Half-Life/cstrike/addons/metamod/plugin.ini
+
+    linux addons/amxmodx/dlls/amxmodx_mm_i386.so
+
+AMX Mod files go here:
 
     tar zxvf amxmodx-*-base-linux.tar.gz -C ~/Steam/steamapps/common/Half-Life/cstrike/
     tar zxvf amxmodx-*-cstrike-linux.tar.gz -C ~/Steam/steamapps/common/Half-Life/cstrike/
