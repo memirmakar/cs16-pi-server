@@ -7,7 +7,7 @@
 set -e
 
 HLDS=~/Steam/steamapps/common/Half-Life/cstrike
-REPO=~/cs16-server
+REPO=~/cs16-pi-server
 
 mkdir -p "$REPO/configs" "$REPO/addons"
 
