@@ -8,14 +8,6 @@ set -e
 echo "=== CS 1.6 Server Setup ==="
 echo ""
 
-# Check prerequisites
-if ! command -v box86 &> /dev/null; then
-    echo "ERROR: Box86 not found. Install via Pi-Apps first."
-    exit 1
-fi
-
-echo "Box86 found, continuing..."
-echo ""
 
 # System update
 echo "[1/6] Updating system..."
