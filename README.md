@@ -130,6 +130,7 @@ mp_consistency 0
 ## Running the server
 
 ```
+sudo exagear
 tmux new -s csserver ~/start_cs.sh
 ```
 
