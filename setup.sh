@@ -43,11 +43,11 @@ exagear -- ~/linux32/steamcmd \
 
 # steamclient.so symlink (silences a harmless dlopen warning)
 mkdir -p ~/.steam/sdk32
-#ln -sf ~/Steam/steamapps/common/Half-Life/steamclient.so ~/.steam/sdk32/steamclient.so
+ln -sf ~/Steam/steamapps/common/Half-Life/steamclient.so ~/.steam/sdk32/steamclient.so
 
 # --- server.cfg --------------------------------------------------------------
 echo "[5/6] Copying server.cfg..."
-cp ~/cs16-server/configs/server.cfg ~/Steam/steamapps/common/Half-Life/cstrike/server.cfg
+cp ~/cs16-pi-server/configs/server.cfg ~/Steam/steamapps/common/Half-Life/cstrike/server.cfg
 
 # --- Firewall ----------------------------------------------------------------
 echo "[6/6] Configuring firewall..."
