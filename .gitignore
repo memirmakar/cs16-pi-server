@@ -1,40 +1,49 @@
-# --- Large / regenerable game assets (come from SteamCMD or a CS install) ---
-# These bloat the repo and hit GitHub's 100MB/file limit. Keep them out;
-# setup.sh + the manual steps re-fetch them.
-maps/
-sound/
-models/
-sprites/
-gfx/
-overviews/
-*.bsp
-*.wav
-*.mp3
-*.mdl
-*.spr
-*.wad
-*.bz2
+# ============================================================================
+#  Allowlist-style .gitignore
+#  Ignore everything, then re-allow scaffolding + safe file types under
+#  configs/ and addons/. users.ini and binaries are force-excluded last.
+# ============================================================================
 
-# --- Engine / mod binaries (downloaded in setup, not source we own) ---
-*.so
-*.dll
-hlds_run
-hlds_linux
-hlds.exe
-steamcmd*
-linux32/
-valve/
+# 1) Ignore everything at the repo root
+/*
 
-# --- Logs, runtime junk ---
+# 2) Re-allow top-level scaffolding
+!/.gitignore
+!/README.md
+!/setup.sh
+!/update.sh
+!/sync_to_repo.sh
+!/start_cs.sh
+!/configs/
+!/addons/
+
+# ----------------------------------------------------------------------------
+#  Re-allow directory traversal everywhere under configs/ and addons/.
+#  (You must un-ignore directories BEFORE you can un-ignore files inside them.)
+# ----------------------------------------------------------------------------
+!configs/**/
+!addons/**/
+
+# ----------------------------------------------------------------------------
+#  Re-allow the file types we want to keep, anywhere in the tree
+# ----------------------------------------------------------------------------
+!**/*.cfg
+!**/*.ini
+!**/*.txt
+!**/*.amxx
+
+# ----------------------------------------------------------------------------
+#  Hard exclusions (come last, so they override the re-allows above)
+# ----------------------------------------------------------------------------
+**/users.ini
+**/*.so
+**/*.dll
+**/*.dat
+**/*.mdl
+**/*.spr
+**/*.wad
+**/logs/**
 *.log
-addons/amxmodx/logs/
-addons/amxmodx/data/csstats.dat
-addons/amxmodx/data/*.dat
-addons/metamod/*.log
-
-# --- Secrets / local-only ---
-*.toml          # frpc.toml may contain your relay token
-users.ini
-user.ini.sample      # contains admin SteamIDs; keep a sample instead
+*.toml
 banned.cfg
 listip.cfg
