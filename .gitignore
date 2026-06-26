@@ -1,0 +1,39 @@
+# --- Large / regenerable game assets (come from SteamCMD or a CS install) ---
+# These bloat the repo and hit GitHub's 100MB/file limit. Keep them out;
+# setup.sh + the manual steps re-fetch them.
+maps/
+sound/
+models/
+sprites/
+gfx/
+overviews/
+*.bsp
+*.wav
+*.mp3
+*.mdl
+*.spr
+*.wad
+*.bz2
+
+# --- Engine / mod binaries (downloaded in setup, not source we own) ---
+*.so
+*.dll
+hlds_run
+hlds_linux
+hlds.exe
+steamcmd*
+linux32/
+valve/
+
+# --- Logs, runtime junk ---
+*.log
+addons/amxmodx/logs/
+addons/amxmodx/data/csstats.dat
+addons/amxmodx/data/*.dat
+addons/metamod/*.log
+
+# --- Secrets / local-only ---
+*.toml          # frpc.toml may contain your relay token
+users.ini       # contains admin SteamIDs; keep a sample instead
+banned.cfg
+listip.cfg
