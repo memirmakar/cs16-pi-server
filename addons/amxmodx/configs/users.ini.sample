@@ -49,9 +49,3 @@
 ; "STEAM_0:0:123456" "" "abcdefghijklmnopqrstuv" "ce"
 ; "123.45.67.89" "" "abcdefghijklmnopqrstuv" "de"
 ; "My Name" "my_password" "abcdefghijklmnopqrstuv" "a"
-
-"loopback" "" "abcdefghijklmnopqrstuv" "de"
-"STEAM_0:1:563569765" "" "abcdefghijklmnopqrstuv" "ce"
-"STEAM_0:1:157403142" "" "abcdefghijklmnopqrstuv" "ce"
-"STEAM_0:1:557813842" "" "abcdefghijklmnopqrstuv" "ce"
-
