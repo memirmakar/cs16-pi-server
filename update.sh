@@ -5,7 +5,7 @@
 set -e
 
 HLDS=~/Steam/steamapps/common/Half-Life/cstrike
-REPO=~/cs16-server
+REPO=~/cs16-pi-server
 
 cd "$REPO"
 git pull
@@ -24,5 +24,5 @@ fi
 
 echo ""
 echo "Done. Restart the server to apply:"
-echo "  - if running in tmux: reattach (tmux attach -t csserver) and run 'exec server.cfg' or restart the process"
-echo "  - if running in Docker: docker restart cs16"
+echo "  - tmux: reattach (tmux attach -t csserver) and run 'exec server.cfg' or restart the process"
+echo "  - Docker: docker restart cs16"
