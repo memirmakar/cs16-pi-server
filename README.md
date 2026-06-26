@@ -2,7 +2,7 @@
 
 A Counter-Strike 1.6 dedicated server running on a Raspberry Pi 5: **steam_legacy HLDS + ReHLDS 3.13 + Metamod-R + AMX Mod X**, all running through **ExaGear** (x86-on-ARM64).
 
-I built this after hitting a wall of version-mismatch and emulation issues, so this repo is mostly a note to myself for rebuilding from scratch. If you're attempting the same thing, the three things that cost me the most time are up top.
+I built this after hitting a wall of version-mismatch and emulation issues, so this repo is mostly a note to myself for rebuilding from scratch. If you're attempting the same thing, the three things that cost me the most time are up top. You don't need to use the scripts in the repo. Following the README manually is enough.
 
 ## TL;DR — the three gotchas
 
